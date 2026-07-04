@@ -1,0 +1,18 @@
+# dbuild configuration — ffmpeg
+# Full reference: https://github.com/daemonless/dbuild
+
+x-daemonless:
+  class: cli
+
+build:
+  variants:
+    - tag: latest
+      containerfile: Containerfile
+
+# ffmpeg is a ONE-SHOT command, not a long-running service: the entrypoint
+# (`ffmpeg`, default CMD `-version`) runs once and exits 0, so shell/port/
+# health/screenshot modes have no live process to probe. `command` mode runs
+# the image to completion and asserts the exit code (+ an output regex) instead.
+cit:
+  mode: command
+  expect_output: 'ffmpeg version \d'

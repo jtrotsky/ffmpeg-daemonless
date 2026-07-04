@@ -1,0 +1,39 @@
+# ffmpeg — FreeBSD daemonless image
+# Official ffmpeg CLI (audio/video transcoding, demux/mux/filter).
+# pkg-based port: FreeBSD packages ffmpeg + its full shared-lib dependency tree,
+# so there is nothing to build from source and no native-module hazards.
+# Upstream: https://ffmpeg.org (GPLv3+, LGPL3+)
+
+ARG BASE_TAG=15-pkg
+
+# base-core = minimal FreeBSD, NO service supervision (no s6) — ffmpeg is a
+# one-shot CLI, not a long-running service, per ahze.
+FROM ghcr.io/daemonless/base-core:${BASE_TAG}
+ARG FREEBSD_ARCH=amd64
+
+LABEL org.opencontainers.image.title="ffmpeg" \
+      org.opencontainers.image.description="ffmpeg CLI (audio/video transcoding) on FreeBSD" \
+      org.opencontainers.image.source="https://github.com/daemonless/ffmpeg" \
+      org.opencontainers.image.url="https://ffmpeg.org" \
+      org.opencontainers.image.licenses="GPL-3.0-or-later" \
+      org.opencontainers.image.vendor="daemonless" \
+      org.opencontainers.image.authors="daemonless" \
+      io.daemonless.category="Utilities" \
+      io.daemonless.arch="${FREEBSD_ARCH}"
+
+# pkg resolves ffmpeg's entire shared-lib tree (codecs, containers) — no ARG
+# version to pin here, the quarterly snapshot IS the pin. Guard against a
+# silent major bump: fail loud if `ffmpeg -version` isn't the 8.x we verified.
+RUN pkg update && pkg install -y ffmpeg \
+    && ffmpeg -version | head -1 | grep -qE '^ffmpeg version 8\.' \
+       || { echo "DRIFT: pkg ffmpeg is no longer major version 8 — re-verify the port"; exit 1; } \
+    && pkg clean -ay && rm -rf /var/cache/pkg/*
+
+# /work is the conventional bind-mount point for media in/out; no other
+# config, env, ports, or volumes needed.
+RUN mkdir -p /work && chown bsd:bsd /work
+USER bsd
+WORKDIR /work
+
+ENTRYPOINT ["ffmpeg"]
+CMD ["-version"]

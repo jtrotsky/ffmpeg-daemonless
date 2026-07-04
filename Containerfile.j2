@@ -7,7 +7,7 @@
 ARG BASE_TAG=15-pkg
 
 # base-core = minimal FreeBSD, NO service supervision (no s6) — ffmpeg is a
-# one-shot CLI, not a long-running service, per ahze.
+# one-shot CLI, not a long-running service.
 FROM ghcr.io/daemonless/base-core:${BASE_TAG}
 ARG FREEBSD_ARCH=amd64
 

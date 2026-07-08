@@ -1,8 +1,6 @@
 # dbuild configuration — ffmpeg
 # Full reference: https://github.com/daemonless/dbuild
-
-x-daemonless:
-  class: cli
+# Metadata (title/icon/category/class) lives in compose.yaml x-daemonless.
 
 build:
   variants:

@@ -12,8 +12,6 @@
 
 ARG BASE_TAG=15-pkg
 
-# base-core = minimal FreeBSD, NO service supervision (no s6) — ffmpeg is a
-# one-shot CLI, not a long-running service, per ahze.
 FROM ghcr.io/daemonless/base-core:${BASE_TAG}
 ARG FREEBSD_ARCH=amd64
 
@@ -27,9 +25,6 @@ LABEL org.opencontainers.image.title="ffmpeg" \
       io.daemonless.category="Utilities" \
       io.daemonless.arch="${FREEBSD_ARCH}"
 
-# pkg resolves ffmpeg's entire shared-lib tree (codecs, containers) — no ARG
-# version to pin here, the quarterly snapshot IS the pin. Guard against a
-# silent major bump: fail loud if `ffmpeg -version` isn't the 8.x we verified.
 RUN pkg update && pkg install -y ffmpeg \
     && ffmpeg -version | head -1 | grep -qE '^ffmpeg version 8\.' \
        || { echo "DRIFT: pkg ffmpeg is no longer major version 8 — re-verify the port"; exit 1; } \

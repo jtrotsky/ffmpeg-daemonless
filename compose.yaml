@@ -1,0 +1,27 @@
+name: ffmpeg
+
+x-daemonless:
+  class: "cli"
+  title: "FFmpeg"
+  icon: ":simple-ffmpeg:"
+  category: "Utilities"
+  description: "FFmpeg CLI (audio/video transcoding) on FreeBSD."
+  upstream_url: "https://ffmpeg.org"
+  web_url: "https://ffmpeg.org/"
+  freshports_url: "https://www.freshports.org/multimedia/ffmpeg/"
+  user: "bsd"
+  upstream_binary: false
+  mlock: false
+  community: "Discord:https://discord.gg/Kb9tkhecZT"
+
+  docs:
+    volumes:
+      /work: "Working directory for media in/out — bind-mount your files here"
+
+# ffmpeg is a one-shot CLI (class: cli), not a service: run with --rm,
+# mount media into /work, pass ffmpeg args as the command.
+services:
+  ffmpeg:
+    image: ghcr.io/daemonless/ffmpeg:latest
+    volumes:
+      - /path/to/media:/work
